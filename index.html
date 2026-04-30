@@ -1,152 +1,180 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
     <title>SajaWarga | Smart Search Terminal</title>
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0e17' rx='20'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%236ee7b7' font-family='monospace'>&gt;_</text></svg>">
-    
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0e17' rx='20'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%236ee7b7' font-family='monospace'>&gt;_</text></svg>"
+    />
+
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css" />
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <!-- Hero Section -->
     <section class="hero">
-        <div class="hero-content">
-            <div class="logo">
-                <div class="logo-icon">
-                    <span class="logo-bracket">&gt;_</span>
-                </div>
-                <div class="logo-text">
-                    <span class="logo-saja">Saja</span>
-                    <span class="logo-warga">Warga</span>
-                </div>
-            </div>
-            
-            <!-- Terminal Input dengan 1 Border -->
-            <div class="hero-terminal-input">
-                <div class="terminal-input-line">
-                    <span class="input-prompt">$</span>
-                    <span class="typing-text" id="typingText"></span>
-                    <span class="cursor" id="cursor">_</span>
-                </div>
-            </div>
-            
-            <!-- Stats -->
-            <div class="hero-stats">
-                <span class="stat-item"><i class="fas fa-database"></i> 7.5M+ artikel</span>
-                <span class="stat-item"><i class="fas fa-globe"></i> 2 bahasa (ID/EN)</span>
-                <span class="stat-item"><i class="fas fa-lock"></i> 100% privat</span>
-            </div>
+      <div class="hero-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <span class="logo-bracket">&gt;_</span>
+          </div>
+          <div class="logo-text">
+            <span class="logo-saja">Saja</span>
+            <span class="logo-warga">Warga</span>
+          </div>
         </div>
+
+        <!-- Terminal Input dengan 1 Border -->
+        <div class="hero-terminal-input">
+          <div class="terminal-input-line">
+            <span class="input-prompt">$</span>
+            <span class="typing-text" id="typingText"></span>
+            <span class="cursor" id="cursor">_</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="hero-stats">
+          <span class="stat-item"
+            ><i class="fas fa-database"></i> 7.5M+ artikel</span
+          >
+          <span class="stat-item"
+            ><i class="fas fa-globe"></i> 2 bahasa (ID/EN)</span
+          >
+          <span class="stat-item"><i class="fas fa-lock"></i> 100% privat</span>
+        </div>
+      </div>
     </section>
 
     <!-- Terminal Section -->
     <section class="terminal-section">
-        <div class="terminal-container">
-            <div class="terminal-header">
-                <div class="terminal-dots">
-                    <span class="dot red"></span>
-                    <span class="dot yellow"></span>
-                    <span class="dot green"></span>
-                </div>
-                <div class="terminal-title">sajawarga@search:~</div>
-                <div class="terminal-time" id="liveTime">--:--</div>
-            </div>
-            <div class="terminal-body">
-                <div class="terminal-output" id="terminalOutput">
-                    <div class="output-line">
-                        <span class="prompt">$</span>
-                        <span class="command">./sajawarga --ready</span>
-                    </div>
-                    <div class="output-line welcome-msg">
-                        <span class="prompt">→</span>
-                        <span class="message">Selamat datang! Ketik <kbd>help</kbd> untuk mulai</span>
-                    </div>
-                    <div id="dynamicOutput"></div>
-                </div>
-                <div class="terminal-input-line">
-                    <span class="input-prompt">$</span>
-                    <input type="text" id="terminalInput" class="terminal-input" placeholder="Cari apa hari ini? (contoh: search pemrograman)" autocomplete="off">
-                    <button id="enterBtn" class="enter-btn">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="terminal-title">sajawarga@search:~</div>
+          <div class="terminal-time" id="liveTime">--:--</div>
         </div>
+        <div class="terminal-body">
+          <div class="terminal-output" id="terminalOutput">
+            <div class="output-line">
+              <span class="prompt">$</span>
+              <span class="command">./sajawarga --ready</span>
+            </div>
+            <div class="output-line welcome-msg">
+              <span class="prompt">→</span>
+              <span class="message"
+                >Selamat datang! Ketik <kbd>help</kbd> untuk mulai</span
+              >
+            </div>
+            <div id="dynamicOutput"></div>
+          </div>
+          <div class="terminal-input-line">
+            <span class="input-prompt">$</span>
+            <input
+              type="text"
+              id="terminalInput"
+              class="terminal-input"
+              placeholder="Cari apa hari ini? (contoh: search pemrograman)"
+              autocomplete="off"
+            />
+            <button id="enterBtn" class="enter-btn">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-logo">
-                <div class="footer-logo-icon">
-                    <span class="footer-logo-bracket">&gt;_</span>
-                </div>
-                <div class="footer-logo-text">
-                    <span class="footer-logo-saja">Saja</span>
-                    <span class="footer-logo-warga">Warga</span>
-                </div>
-            </div>
-            <div class="footer-copyright">
-                <p>© 2026 SajaWarga. Created with <i class="fas fa-heart" style="color: #e05a5a;"></i> by SajaWarga Team</p>
-                <p>Dengan bantuan dari berbagai sumber pengetahuan</p>
-            </div>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <span class="footer-logo-bracket">&gt;_</span>
+          </div>
+          <div class="footer-logo-text">
+            <span class="footer-logo-saja">Saja</span>
+            <span class="footer-logo-warga">Warga</span>
+          </div>
         </div>
+        <div class="footer-copyright">
+          <p>
+            © 2026 SajaWarga. Dibuat oleh
+            <i class="fas fa-heart" style="color: #e05a5a"></i> Salman A
+          </p>
+          <p>Dengan bantuan AI-powered</p>
+        </div>
+      </div>
     </footer>
 
     <script src="js/script.js"></script>
     <script>
-        // Typing Effect Looping untuk Hero
-        (function() {
-            const texts = [
-                "Cari apa saja...", 
-                "search dari Wikipedia", 
-                "jelajahi 7.5M artikel", 
-                "temukan pengetahuan baru"
-            ];
-            const typingText = document.getElementById('typingText');
-            const cursor = document.getElementById('cursor');
-            let textIndex = 0;
-            let charIndex = 0;
-            let isDeleting = false;
-            
-            function typeWriter() {
-                const currentText = texts[textIndex];
-                let typingSpeed = 100;
-                
-                if (isDeleting) {
-                    typingText.innerHTML = currentText.substring(0, charIndex - 1);
-                    charIndex--;
-                    typingSpeed = 50;
-                } else {
-                    typingText.innerHTML = currentText.substring(0, charIndex + 1);
-                    charIndex++;
-                    typingSpeed = 100;
-                }
-                
-                if (isDeleting && charIndex === 0) {
-                    isDeleting = false;
-                    textIndex = (textIndex + 1) % texts.length;
-                    typingSpeed = 500;
-                }
-                
-                if (!isDeleting && charIndex === currentText.length) {
-                    isDeleting = true;
-                    typingSpeed = 1500;
-                }
-                
-                setTimeout(typeWriter, typingSpeed);
-            }
-            
-            setTimeout(typeWriter, 500);
-        })();
+      // Typing Effect Looping untuk Hero
+      (function () {
+        const texts = [
+          "Cari apa saja...",
+          "search dari Wikipedia",
+          "jelajahi 7.5M artikel",
+          "temukan pengetahuan baru",
+        ];
+        const typingText = document.getElementById("typingText");
+        const cursor = document.getElementById("cursor");
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeWriter() {
+          const currentText = texts[textIndex];
+          let typingSpeed = 100;
+
+          if (isDeleting) {
+            typingText.innerHTML = currentText.substring(0, charIndex - 1);
+            charIndex--;
+            typingSpeed = 50;
+          } else {
+            typingText.innerHTML = currentText.substring(0, charIndex + 1);
+            charIndex++;
+            typingSpeed = 100;
+          }
+
+          if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            textIndex = (textIndex + 1) % texts.length;
+            typingSpeed = 500;
+          }
+
+          if (!isDeleting && charIndex === currentText.length) {
+            isDeleting = true;
+            typingSpeed = 1500;
+          }
+
+          setTimeout(typeWriter, typingSpeed);
+        }
+
+        setTimeout(typeWriter, 500);
+      })();
     </script>
-</body>
+  </body>
 </html>
