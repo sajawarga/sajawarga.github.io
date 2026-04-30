@@ -286,6 +286,7 @@ body {
     color: #94a3b8;
 }
 
+/* Terminal Input Line dengan Tombol Enter */
 .terminal-input-line {
     display: flex;
     align-items: center;
@@ -322,6 +323,32 @@ body {
 .terminal-input::placeholder {
     color: #3a4460;
     font-style: italic;
+}
+
+/* Tombol Enter - Ikon Saja */
+.enter-btn {
+    background: linear-gradient(135deg, #2a3448, #1a1f2e);
+    border: 1px solid rgba(110, 231, 183, 0.4);
+    color: #6ee7b7;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.enter-btn:hover {
+    background: linear-gradient(135deg, #3a4558, #2a3448);
+    border-color: #6ee7b7;
+    transform: translateY(-1px);
+}
+
+.enter-btn:active {
+    transform: translateY(0);
 }
 
 /* ==================== SEARCH RESULTS ==================== */
@@ -563,6 +590,12 @@ kbd {
         padding: 12px 14px;
     }
     
+    .enter-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+    
     .footer {
         padding: 24px 20px;
     }
@@ -648,6 +681,12 @@ kbd {
     
     .terminal-input-line {
         padding: 10px 12px;
+    }
+    
+    .enter-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
     }
     
     .result-buttons button {

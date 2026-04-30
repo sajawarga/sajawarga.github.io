@@ -404,6 +404,20 @@
                 }
             }
         });
+        
+        // Event listener untuk tombol Enter (ikon)
+        const enterBtn = document.getElementById('enterBtn');
+        if (enterBtn) {
+            enterBtn.addEventListener('click', async () => {
+                const command = inputField.value;
+                if (command.trim() !== '') {
+                    writeOutput(`<div class="output-line" style="margin:4px 0; display:flex; gap:8px;"><span class="prompt" style="color:#6ee7b7;">$</span> <span style="color:#94e6b2;">${escapeHtml(command.trim())}</span></div>`);
+                    inputField.value = '';
+                    await processCommand(command);
+                }
+                scrollToBottom();
+            });
+        }
     }
     
     function updateTime() {

@@ -74,6 +74,9 @@
                 <div class="terminal-input-line">
                     <span class="input-prompt">$</span>
                     <input type="text" id="terminalInput" class="terminal-input" placeholder="Cari apa hari ini? (contoh: search pemrograman)" autocomplete="off">
+                    <button id="enterBtn" class="enter-btn">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -92,58 +95,58 @@
                 </div>
             </div>
             <div class="footer-copyright">
-                <p>© 2026 SajaWarga. Dibuat oleh <i class="fas fa-heart" style="color: #e05a5a;"></i> Salman A</p>
-                <p>Dengan bantuan AI-powered</p>
+                <p>© 2026 SajaWarga. Created with <i class="fas fa-heart" style="color: #e05a5a;"></i> by SajaWarga Team</p>
+                <p>Dengan bantuan dari berbagai sumber pengetahuan</p>
             </div>
         </div>
     </footer>
 
     <script src="js/script.js"></script>
     <script>
-    // Typing Effect Looping untuk Hero
-    (function() {
-        const texts = [
-            "Cari apa saja...", 
-            "search dari Wikipedia", 
-            "jelajahi 7.5M artikel", 
-            "temukan pengetahuan baru"
-        ];
-        const typingText = document.getElementById('typingText');
-        const cursor = document.getElementById('cursor');
-        let textIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        
-        function typeWriter() {
-            const currentText = texts[textIndex];
-            let typingSpeed = 100;
+        // Typing Effect Looping untuk Hero
+        (function() {
+            const texts = [
+                "Cari apa saja...", 
+                "search dari Wikipedia", 
+                "jelajahi 7.5M artikel", 
+                "temukan pengetahuan baru"
+            ];
+            const typingText = document.getElementById('typingText');
+            const cursor = document.getElementById('cursor');
+            let textIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
             
-            if (isDeleting) {
-                typingText.innerHTML = currentText.substring(0, charIndex - 1);
-                charIndex--;
-                typingSpeed = 50;
-            } else {
-                typingText.innerHTML = currentText.substring(0, charIndex + 1);
-                charIndex++;
-                typingSpeed = 100;
+            function typeWriter() {
+                const currentText = texts[textIndex];
+                let typingSpeed = 100;
+                
+                if (isDeleting) {
+                    typingText.innerHTML = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+                    typingSpeed = 50;
+                } else {
+                    typingText.innerHTML = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+                    typingSpeed = 100;
+                }
+                
+                if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    textIndex = (textIndex + 1) % texts.length;
+                    typingSpeed = 500;
+                }
+                
+                if (!isDeleting && charIndex === currentText.length) {
+                    isDeleting = true;
+                    typingSpeed = 1500;
+                }
+                
+                setTimeout(typeWriter, typingSpeed);
             }
             
-            if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                textIndex = (textIndex + 1) % texts.length;
-                typingSpeed = 500;
-            }
-            
-            if (!isDeleting && charIndex === currentText.length) {
-                isDeleting = true;
-                typingSpeed = 1500;
-            }
-            
-            setTimeout(typeWriter, typingSpeed);
-        }
-        
-        setTimeout(typeWriter, 500);
-    })();
+            setTimeout(typeWriter, 500);
+        })();
     </script>
 </body>
 </html>
