@@ -392,7 +392,7 @@
                     <li>Salin teks & terjemahan Google Translate</li>
                 </ul>
                 <hr style="border-color:#2a3448; margin:8px 0;">
-                <p>Created with <i class="fas fa-heart" style="color:#e05a5a;"></i> by SajaWarga Team</p>
+                <p>Dibuat oleh <i class="fas fa-heart" style="color:#e05a5a;"></i> Salman A</p>
             </div>
         `);
   }
