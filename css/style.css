@@ -14,14 +14,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 10px;
 }
 
 /* Terminal Window - Seperti aplikasi terminal */
 .terminal-window {
     width: 100%;
     max-width: 1200px;
-    height: 90vh;
+    height: 100%;
+    max-height: 100vh;
     background: #0a0c10;
     border-radius: 10px;
     overflow: hidden;
@@ -39,6 +40,7 @@ body {
     justify-content: center;
     border-bottom: 1px solid #2a3448;
     user-select: none;
+    flex-shrink: 0;
 }
 
 .window-title {
@@ -54,6 +56,22 @@ body {
     align-items: center;
     border-bottom: 1px solid #2a3448;
     padding-left: 8px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-bar::-webkit-scrollbar {
+    height: 3px;
+}
+
+.tab-bar::-webkit-scrollbar-track {
+    background: #1a1f2e;
+}
+
+.tab-bar::-webkit-scrollbar-thumb {
+    background: #2a6b47;
 }
 
 .tab {
@@ -67,6 +85,8 @@ body {
     cursor: default;
     border-right: 1px solid #2a3448;
     transition: background 0.2s;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .tab:hover {
@@ -106,29 +126,34 @@ body {
     padding: 16px;
     overflow: hidden;
     background: #0a0c10;
+    min-height: 0; /* Penting untuk flex scrolling di mobile */
 }
 
 .terminal-output {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     font-size: 13px;
     line-height: 1.5;
     color: #cbd5e6;
     font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 5px;
 }
 
-/* Custom Scrollbar seperti terminal */
+/* Custom Scrollbar */
 .terminal-output::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
 }
 
 .terminal-output::-webkit-scrollbar-track {
     background: #1a1f2e;
+    border-radius: 4px;
 }
 
 .terminal-output::-webkit-scrollbar-thumb {
     background: #2a6b47;
-    border-radius: 5px;
+    border-radius: 4px;
 }
 
 .terminal-output::-webkit-scrollbar-thumb:hover {
@@ -142,15 +167,18 @@ body {
     align-items: baseline;
     flex-wrap: wrap;
     gap: 8px;
+    word-break: break-word;
 }
 
 .prompt {
     color: #6ee7b7;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
 .command {
     color: #e2e8f0;
+    word-break: break-word;
 }
 
 .welcome-msg .prompt {
@@ -159,6 +187,7 @@ body {
 
 .welcome-msg .message {
     color: #94a3b8;
+    word-break: break-word;
 }
 
 .welcome-stats .prompt {
@@ -168,6 +197,7 @@ body {
 .welcome-stats .message {
     color: #6ee7b7;
     font-weight: 500;
+    word-break: break-word;
 }
 
 .welcome-stats .message i {
@@ -182,6 +212,8 @@ body {
     padding: 12px 0 8px 0;
     border-top: 1px solid #1a1f2e;
     margin-top: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 .input-prompt {
@@ -189,6 +221,7 @@ body {
     font-weight: bold;
     font-family: monospace;
     font-size: 14px;
+    flex-shrink: 0;
 }
 
 .terminal-input {
@@ -200,6 +233,7 @@ body {
     font-size: 14px;
     outline: none;
     padding: 6px 0;
+    min-width: 100px;
 }
 
 .terminal-input::placeholder {
@@ -212,8 +246,8 @@ body {
     background: #1a1f2e;
     border: 1px solid #2a6b47;
     color: #6ee7b7;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
@@ -221,6 +255,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .enter-btn:hover {
@@ -236,15 +271,19 @@ body {
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid #1a1f2e;
-    font-size: 11px;
+    font-size: 10px;
     color: #6a7894;
     font-family: monospace;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .status-left, .status-center, .status-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .status-left i {
@@ -257,6 +296,7 @@ body {
     padding: 0;
     border-left: 2px solid #2a6b47;
     padding-left: 12px;
+    word-break: break-word;
 }
 
 .result-title {
@@ -270,12 +310,14 @@ body {
 .result-title i {
     color: #6ee7b7;
     font-size: 13px;
+    flex-shrink: 0;
 }
 
 .result-title span {
     font-size: 14px;
     font-weight: bold;
     color: #e2e8f0;
+    word-break: break-word;
 }
 
 .lang-badge {
@@ -283,6 +325,7 @@ body {
     padding: 2px 8px;
     border-radius: 20px;
     font-size: 9px;
+    flex-shrink: 0;
 }
 
 .result-method {
@@ -296,15 +339,17 @@ body {
     font-size: 12px;
     color: #cbd5e6;
     line-height: 1.5;
-    max-height: 250px;
+    max-height: 200px;
     overflow-y: auto;
     padding-right: 8px;
+    word-break: break-word;
+    -webkit-overflow-scrolling: touch;
 }
 
 .result-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     margin: 8px 0 6px;
 }
 
@@ -312,12 +357,14 @@ body {
     background: #1a1f2e;
     border: 1px solid #2a6b47;
     color: #6ee7b7;
-    padding: 4px 10px;
+    padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 10px;
     transition: all 0.2s ease;
     font-family: monospace;
+    flex: 1;
+    min-width: 100px;
 }
 
 .result-buttons button:hover {
@@ -326,12 +373,14 @@ body {
 
 .result-link {
     margin-top: 4px;
+    word-break: break-word;
 }
 
 .result-link a {
     color: #6ee7b7;
     font-size: 10px;
     text-decoration: none;
+    word-break: break-word;
 }
 
 .result-link a:hover {
@@ -355,6 +404,7 @@ kbd {
     border: 1px solid #2a6b47;
     font-family: monospace;
     color: #6ee7b7;
+    display: inline-block;
 }
 
 /* Info card */
@@ -362,6 +412,7 @@ kbd {
     margin: 8px 0;
     padding: 10px 12px;
     border-left: 2px solid #2a6b47;
+    word-break: break-word;
 }
 
 .info-card p {
@@ -383,16 +434,20 @@ kbd {
 /* Toast Notification */
 .toast-notification {
     position: fixed;
-    bottom: 100px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
     background: #2a6b47;
     color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 16px;
+    border-radius: 8px;
     font-size: 12px;
     z-index: 9999;
     font-family: monospace;
+    text-align: center;
     animation: fadeOut 2s ease forwards;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
 @keyframes fadeOut {
@@ -401,14 +456,22 @@ kbd {
     100% { opacity: 0; transform: translateX(20px); }
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE MOBILE ==================== */
 @media (max-width: 768px) {
     body {
-        padding: 10px;
+        padding: 8px;
     }
     
     .terminal-window {
-        height: 95vh;
+        border-radius: 8px;
+    }
+    
+    .title-bar {
+        padding: 8px 12px;
+    }
+    
+    .window-title {
+        font-size: 11px;
     }
     
     .tab {
@@ -421,7 +484,91 @@ kbd {
     }
     
     .terminal-output {
+        font-size: 12px;
+    }
+    
+    .input-prompt,
+    .terminal-input {
+        font-size: 13px;
+    }
+    
+    .enter-btn {
+        width: 32px;
+        height: 32px;
         font-size: 11px;
+    }
+    
+    .status-bar {
+        font-size: 9px;
+        padding: 5px 12px;
+    }
+    
+    .status-left, .status-center, .status-right {
+        gap: 6px;
+    }
+    
+    .welcome-stats .message {
+        font-size: 10px;
+        line-height: 1.4;
+    }
+    
+    .result-title span {
+        font-size: 13px;
+    }
+    
+    .result-content {
+        font-size: 11px;
+        max-height: 180px;
+    }
+    
+    .result-buttons button {
+        font-size: 9px;
+        padding: 4px 8px;
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .terminal-window {
+        border-radius: 6px;
+    }
+    
+    .title-bar {
+        padding: 6px 10px;
+    }
+    
+    .window-title {
+        font-size: 10px;
+    }
+    
+    .tab {
+        padding: 5px 10px;
+        font-size: 9px;
+        gap: 5px;
+    }
+    
+    .tab i {
+        font-size: 8px;
+    }
+    
+    .tab-close {
+        font-size: 12px;
+    }
+    
+    .terminal-container {
+        padding: 10px;
+    }
+    
+    .terminal-output {
+        font-size: 11px;
+    }
+    
+    .output-line {
+        gap: 5px;
     }
     
     .input-prompt,
@@ -436,39 +583,112 @@ kbd {
     }
     
     .status-bar {
-        font-size: 9px;
-        padding: 4px 12px;
+        font-size: 8px;
+        padding: 4px 10px;
+        gap: 5px;
+        flex-direction: column;
+        text-align: center;
     }
     
     .status-left, .status-center, .status-right {
-        gap: 8px;
-    }
-    
-    .welcome-stats .message {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .tab {
-        padding: 4px 8px;
-    }
-    
-    .tab span {
-        font-size: 9px;
-    }
-    
-    .terminal-container {
-        padding: 10px;
-    }
-    
-    .result-buttons button {
-        width: 100%;
         justify-content: center;
     }
     
     .welcome-stats .message {
         font-size: 9px;
-        line-height: 1.4;
+    }
+    
+    .welcome-stats .message i {
+        margin-right: 2px;
+    }
+    
+    .result-title {
+        gap: 4px;
+    }
+    
+    .result-title span {
+        font-size: 12px;
+    }
+    
+    .lang-badge {
+        font-size: 8px;
+        padding: 1px 6px;
+    }
+    
+    .result-content {
+        font-size: 10px;
+        max-height: 150px;
+    }
+    
+    .result-buttons {
+        gap: 6px;
+    }
+    
+    .result-buttons button {
+        font-size: 8px;
+        padding: 3px 6px;
+        min-width: 70px;
+    }
+    
+    .info-card p, .info-card li {
+        font-size: 10px;
+    }
+    
+    .info-card ul {
+        margin-left: 16px;
+    }
+    
+    .toast-notification {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        font-size: 11px;
+        padding: 8px 12px;
+    }
+}
+
+/* Landscape mode di mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    body {
+        padding: 5px;
+    }
+    
+    .terminal-window {
+        height: 98vh;
+    }
+    
+    .tab {
+        padding: 4px 10px;
+    }
+    
+    .terminal-container {
+        padding: 8px;
+    }
+    
+    .terminal-output {
+        font-size: 11px;
+    }
+    
+    .result-content {
+        max-height: 120px;
+    }
+}
+
+/* Touch optimization untuk scrolling */
+@media (hover: none) and (pointer: coarse) {
+    .terminal-output {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .result-content {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .enter-btn:active {
+        transform: scale(0.95);
+    }
+    
+    .result-buttons button:active {
+        transform: scale(0.98);
     }
 }
