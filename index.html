@@ -3,80 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>SajaWarga Terminal</title>
+    <title>SajaWarga | Pencarian Wikipedia Cerdas</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000000' rx='20'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%236ee7b7' font-family='monospace'>&gt;_</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2336c' rx='20'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white' font-family='Arial'>W</text></svg>">
     
-    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="terminal-window">
-        <!-- Title Bar - Hanya judul di tengah -->
-        <div class="title-bar">
-            <div class="window-title">sajawarga@terminal:~</div>
-        </div>
-        
-        <!-- Tab Bar - Tanpa tombol New Tab -->
-        <div class="tab-bar">
-            <div class="tab active">
-                <i class="fas fa-terminal"></i>
-                <span>bash</span>
-                <button class="tab-close">&times;</button>
+    <!-- Header - Logo di kiri -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-search"></i>
+                <span>Saja<span class="highlight">Warga</span></span>
             </div>
         </div>
-        
-        <!-- Terminal Content -->
-        <div class="terminal-container">
-            <div class="terminal-output" id="terminalOutput">
-                <div class="output-line">
-                    <span class="prompt">$</span>
-                    <span class="command">./sajawarga --ready</span>
-                </div>
-                <div class="output-line welcome-msg">
-                    <span class="prompt">→</span>
-                    <span class="message">Selamat datang di SajaWarga Terminal</span>
-                </div>
-                <div class="output-line welcome-stats">
-                    <span class="prompt">→</span>
-                    <span class="message"><i class="fas fa-database"></i> 7.5M+ artikel &nbsp;|&nbsp; <i class="fas fa-globe"></i> 2 bahasa (ID/EN) &nbsp;|&nbsp; <i class="fas fa-lock"></i> 100% privat</span>
-                </div>
-                <div class="output-line welcome-msg">
-                    <span class="prompt">→</span>
-                    <span class="message">Ketik <kbd>help</kbd> untuk melihat daftar perintah</span>
-                </div>
-                <div id="dynamicOutput"></div>
-            </div>
-            <div class="input-line">
-                <span class="input-prompt">$</span>
-                <input type="text" id="terminalInput" class="terminal-input" autocomplete="off" spellcheck="false" placeholder="">
-                <button id="enterBtn" class="enter-btn">
-                    <i class="fas fa-arrow-right"></i>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">
+                <span class="gradient">Cari Pengetahuan</span><br>
+                Dari Seluruh Dunia
+            </h1>
+            <p class="hero-subtitle">Mesin pencari Wikipedia bilingual (Indonesia & Inggris) dengan hasil cepat dan akurat</p>
+        </div>
+    </section>
+
+    <!-- Search Box -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari artikel... (contoh: pemrograman, sejarah, teknologi)">
+                <button id="searchBtn" class="search-btn">
+                    <i class="fas fa-arrow-right"></i> Cari
                 </button>
             </div>
+            
+            <!-- Stats dengan Opsi 3: Ringan & Cepat -->
+            <div class="search-stats">
+                <span><i class="fas fa-database"></i> 7.5M+ Artikel</span>
+                <span><i class="fas fa-globe"></i> 2 Bahasa (ID/EN)</span>
+                <span><i class="fas fa-bolt"></i> Ringan & Cepat</span>
+            </div>
+            
+            <div class="search-tips">
+                <span><i class="fas fa-lightbulb"></i> Tips: Cari dalam bahasa Indonesia atau Inggris</span>
+            </div>
         </div>
-        
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-left">
-                <i class="fas fa-circle" style="color: #6ee7b7; font-size: 8px;"></i>
-                <span>READY</span>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section" id="resultsSection" style="display: none;">
+        <div class="container">
+            <div class="results-header">
+                <h3><i class="fas fa-file-alt"></i> Hasil Pencarian</h3>
+                <div id="resultStats"></div>
             </div>
-            <div class="status-center">
-                <span>UTF-8</span>
-                <span>|</span>
-                <span>bash</span>
-                <span>|</span>
-                <span>80x24</span>
-            </div>
-            <div class="status-right" id="liveTime">
-                --:--
-            </div>
+            <div id="resultsContainer" class="results-container"></div>
+        </div>
+    </section>
+
+    <!-- Loading -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-pulse"></i>
+            <p>Mencari...</p>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 SajaWarga — Pencarian Wikipedia Cepat & Akurat</p>
+            <p class="credit">Dengan bantuan dari berbagai sumber pengetahuan</p>
+        </div>
+    </footer>
 
     <script src="js/script.js"></script>
 </body>

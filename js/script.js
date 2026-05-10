@@ -1,24 +1,33 @@
-// SAJAWARGA - Full Terminal Version
-// Pencarian bilingual Indonesia + Inggris dengan fuzzy search
+// SAJAWARGA - Wikipedia Search Engine
 
 (function() {
     'use strict';
 
     // DOM Elements
-    const terminalOutput = document.getElementById('terminalOutput');
-    const dynamicOutput = document.getElementById('dynamicOutput');
-    const inputField = document.getElementById('terminalInput');
-    
-    let commandHistory = [];
-    let historyIndex = -1;
-    
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultStats = document.getElementById('resultStats');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
     // Helper Functions
-    function scrollToBottom() {
-        setTimeout(() => {
-            if (terminalOutput) terminalOutput.scrollTop = terminalOutput.scrollHeight;
-        }, 50);
+    function showLoading() {
+        loadingOverlay.style.display = 'flex';
     }
-    
+
+    function hideLoading() {
+        loadingOverlay.style.display = 'none';
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -28,30 +37,7 @@
             return m;
         });
     }
-    
-    function writeOutput(content, isError = false) {
-        const block = document.createElement('div');
-        block.style.margin = '4px 0';
-        if (isError) block.style.color = '#f98b8b';
-        if (typeof content === 'string') {
-            block.innerHTML = content;
-        } else {
-            block.appendChild(content);
-        }
-        dynamicOutput.appendChild(block);
-        scrollToBottom();
-        return block;
-    }
-    
-    function showToast(msg, isError = false) {
-        const toast = document.createElement('div');
-        toast.textContent = msg;
-        toast.className = 'toast-notification';
-        toast.style.background = isError ? '#e05a5a' : '#2a6b47';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
-    }
-    
+
     // JSONP Request
     function jsonpRequest(url) {
         return new Promise((resolve, reject) => {
@@ -80,54 +66,12 @@
             document.head.appendChild(script);
         });
     }
-    
-    // Levenshtein Distance untuk fuzzy search
-    function levenshteinDistance(a, b) {
-        const matrix = [];
-        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-        for (let j = 0; j <= a.length; j++) matrix[0][j] = [j];
-        for (let i = 1; i <= b.length; i++) {
-            for (let j = 1; j <= a.length; j++) {
-                if (b.charAt(i-1) === a.charAt(j-1)) {
-                    matrix[i][j] = matrix[i-1][j-1];
-                } else {
-                    matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, matrix[i][j-1] + 1, matrix[i-1][j] + 1);
-                }
-            }
-        }
-        return matrix[b.length][a.length];
-    }
-    
-    async function findSimilarTitle(query, language) {
-        const baseUrl = language === 'id' ? 'https://id.wikipedia.org' : 'https://en.wikipedia.org';
-        try {
-            const searchUrl = `${baseUrl}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=20`;
-            const data = await jsonpRequest(searchUrl);
-            if (data && data.query && data.query.search && data.query.search.length > 0) {
-                let bestMatch = null;
-                let bestScore = Infinity;
-                for (let item of data.query.search) {
-                    const title = item.title;
-                    const distance = levenshteinDistance(query.toLowerCase(), title.toLowerCase());
-                    const score = distance / Math.max(query.length, title.length);
-                    if (score < bestScore && score < 0.5) {
-                        bestScore = score;
-                        bestMatch = title;
-                    }
-                }
-                if (bestMatch) {
-                    return await getWikipediaExtract(bestMatch, language);
-                }
-            }
-            return null;
-        } catch (e) {
-            return null;
-        }
-    }
-    
+
+    // Get Wikipedia Extract
     async function getWikipediaExtract(title, language) {
         const baseUrl = language === 'id' ? 'https://id.wikipedia.org' : 'https://en.wikipedia.org';
         const url = `${baseUrl}/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(title)}&redirects=1`;
+        
         try {
             const data = await jsonpRequest(url);
             if (data && data.query && data.query.pages) {
@@ -145,29 +89,31 @@
             return null;
         }
     }
-    
+
+    // Search Wikipedia
     async function searchWikipedia(query) {
         if (!query || query.trim() === '') {
-            writeOutput('⚠️ Masukkan kata kunci', true);
+            showToast('Masukkan kata kunci pencarian');
             return;
         }
         
-        writeOutput('<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Mencari...</div>');
+        showLoading();
+        resultsSection.style.display = 'none';
         
         try {
-            const cleanQ = query.trim().toLowerCase();
+            const cleanQ = query.trim();
             let result = null;
             let isEnglish = false;
             let methodUsed = '';
             
-            // Coba Indonesia
+            // Try Indonesia first
             const idResult = await getWikipediaExtract(cleanQ, 'id');
             if (idResult && idResult.extract && !idResult.extract.includes('dialihkan')) {
                 result = idResult;
                 methodUsed = 'Wikipedia Indonesia';
             }
             
-            // Coba Inggris
+            // Try English
             if (!result) {
                 const enResult = await getWikipediaExtract(cleanQ, 'en');
                 if (enResult && enResult.extract && !enResult.extract.includes('redirect')) {
@@ -177,133 +123,113 @@
                 }
             }
             
-            // Fuzzy search
+            // Try search suggestions if not found
             if (!result) {
-                const fuzzyResult = await findSimilarTitle(cleanQ, 'id');
-                if (fuzzyResult) {
-                    result = fuzzyResult;
-                    methodUsed = 'Fuzzy Search (Indonesia)';
-                } else {
-                    const fuzzyEnResult = await findSimilarTitle(cleanQ, 'en');
-                    if (fuzzyEnResult) {
-                        result = fuzzyEnResult;
-                        isEnglish = true;
-                        methodUsed = 'Fuzzy Search (Inggris)';
-                    }
-                }
+                await showSearchSuggestions(cleanQ);
+                hideLoading();
+                return;
             }
             
-            const loading = document.querySelector('.loading');
-            if (loading) loading.remove();
-            
+            // Display result
             if (result && result.extract) {
                 let extract = result.extract;
-                if (extract.length > 2000) extract = extract.substring(0, 2000) + '...';
+                if (extract.length > 1500) extract = extract.substring(0, 1500) + '...';
                 
-                const langBadge = isEnglish 
-                    ? '<span class="lang-badge" style="background:#1a2a2a; padding:2px 8px; border-radius:20px; font-size:9px; margin-left:8px;">🇬🇧 EN</span>'
-                    : '<span class="lang-badge" style="background:#1a2a2a; padding:2px 8px; border-radius:20px; font-size:9px; margin-left:8px;">🇮🇩 ID</span>';
+                const langBadge = isEnglish ? '🇬🇧 English' : '🇮🇩 Indonesia';
                 
                 const html = `
-                    <div class="search-result">
+                    <div class="result-card">
                         <div class="result-title">
-                            <i class="fab fa-wikipedia-w"></i>
-                            <span>${escapeHtml(result.title)}</span>
-                            ${langBadge}
+                            <a href="https://${isEnglish ? 'en' : 'id'}.wikipedia.org/wiki/${encodeURIComponent(result.title)}" target="_blank">
+                                ${escapeHtml(result.title)}
+                            </a>
                         </div>
+                        <div class="result-lang">${langBadge}</div>
                         <div class="result-method">
-                            <i class="fas fa-search"></i> ${methodUsed}
+                            <i class="fas fa-search"></i> Ditemukan via: ${methodUsed}
                         </div>
-                        <div class="result-content" id="extract_${Date.now()}">
+                        <div class="result-snippet">
                             ${escapeHtml(extract)}
                         </div>
                         <div class="result-buttons">
+                            <button class="copy-btn" data-text="${escapeHtml(extract).replace(/"/g, '&quot;')}">
+                                <i class="fas fa-copy"></i> Salin Teks
+                            </button>
                             ${isEnglish ? `
-                                <button class="copy-translate-btn" data-text="${escapeHtml(extract).replace(/"/g, '&quot;')}">
-                                    <i class="fas fa-copy"></i> Salin & Terjemahkan
+                                <button class="translate-btn" data-text="${escapeHtml(extract).replace(/"/g, '&quot;')}">
+                                    <i class="fas fa-language"></i> Terjemahkan ke Indonesia
                                 </button>
-                            ` : `
-                                <button class="copy-btn" data-text="${escapeHtml(extract).replace(/"/g, '&quot;')}">
-                                    <i class="fas fa-copy"></i> Salin Teks
-                                </button>
-                            `}
+                            ` : ''}
                         </div>
                         <div class="result-link">
                             <a href="https://${isEnglish ? 'en' : 'id'}.wikipedia.org/wiki/${encodeURIComponent(result.title)}" target="_blank">
-                                🔗 Baca selengkapnya →
+                                🔗 Baca selengkapnya di Wikipedia ${isEnglish ? 'Inggris' : 'Indonesia'} →
                             </a>
                         </div>
                     </div>
                 `;
-                writeOutput(html);
-            } else {
-                await showSuggestions(query);
+                
+                resultsContainer.innerHTML = html;
+                resultStats.innerHTML = `Menampilkan hasil untuk "${escapeHtml(cleanQ)}"`;
+                resultsSection.style.display = 'block';
             }
+            
         } catch (error) {
-            const loading = document.querySelector('.loading');
-            if (loading) loading.remove();
-            writeOutput('😔 Gagal mencari. Coba kata kunci lain.', true);
+            console.error('Search error:', error);
+            showToast('Gagal mencari. Coba kata kunci lain.');
+        } finally {
+            hideLoading();
         }
     }
     
-    async function showSuggestions(query) {
-        writeOutput('<div class="loading"><i class="fas fa-spinner fa-pulse"></i> Menampilkan saran...</div>');
+    // Show search suggestions
+    async function showSearchSuggestions(query) {
         try {
-            const searchUrl = `https://id.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=8`;
+            const searchUrl = `https://id.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=6`;
             const data = await jsonpRequest(searchUrl);
-            const loading = document.querySelector('.loading');
-            if (loading) loading.remove();
             
             if (data && data.query && data.query.search && data.query.search.length > 0) {
-                let html = `<div style="margin:8px 0 4px;"><strong>🔍 Hasil terkait "${escapeHtml(query)}"</strong></div>`;
-                html += `<ul style="margin:0 0 8px 20px;">`;
-                for (let item of data.query.search.slice(0, 8)) {
+                let html = `<div class="result-card">
+                    <div class="result-title">Hasil terkait "${escapeHtml(query)}"</div>
+                    <div class="suggestions-list">`;
+                
+                for (let item of data.query.search) {
                     html += `
-                        <li style="margin:6px 0;">
-                            <span style="color:#6ee7b7;">${escapeHtml(item.title)}</span>
-                            <button class="suggest-search" data-title="${escapeHtml(item.title)}" style="background:#1a1f2e; border:1px solid #2a6b47; color:#6ee7b7; padding:2px 8px; border-radius:4px; cursor:pointer; font-size:10px; margin-left:10px;">
-                                🔍 Cari
+                        <div class="suggestion-item">
+                            <span class="suggestion-title">${escapeHtml(item.title)}</span>
+                            <button class="suggestion-btn" data-title="${escapeHtml(item.title)}">
+                                <i class="fas fa-search"></i> Cari
                             </button>
-                        </li>
+                        </div>
                     `;
                 }
-                html += `</ul>`;
-                writeOutput(html);
+                
+                html += `</div></div>`;
+                resultsContainer.innerHTML = html;
+                resultStats.innerHTML = `Tidak menemukan "${escapeHtml(query)}". Coba salah satu berikut:`;
+                resultsSection.style.display = 'block';
             } else {
-                writeOutput('😔 Tidak ditemukan hasil. Coba kata kunci lain.', true);
+                resultsContainer.innerHTML = `<div class="result-card">
+                    <div class="result-title">Tidak ditemukan hasil</div>
+                    <div class="result-snippet">Coba kata kunci lain seperti "pemrograman", "teknologi", atau "sejarah".</div>
+                </div>`;
+                resultStats.innerHTML = `Tidak ada hasil untuk "${escapeHtml(query)}"`;
+                resultsSection.style.display = 'block';
             }
-        } catch(error) {
-            const loading = document.querySelector('.loading');
-            if (loading) loading.remove();
-            writeOutput('😔 Tidak ditemukan hasil.', true);
+        } catch (error) {
+            resultsContainer.innerHTML = `<div class="result-card">
+                <div class="result-title">Terjadi kesalahan</div>
+                <div class="result-snippet">Silakan coba lagi nanti.</div>
+            </div>`;
+            resultsSection.style.display = 'block';
         }
     }
     
-    // Event Handlers
-    document.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('copy-btn')) {
-            const text = e.target.getAttribute('data-text');
-            await copyToClipboard(text);
-            showToast('✓ Teks berhasil disalin!');
-        }
-        
-        if (e.target.classList.contains('copy-translate-btn')) {
-            const text = e.target.getAttribute('data-text');
-            await copyToClipboard(text);
-            showToast('✓ Teks disalin! Membuka Google Translate...');
-            window.open(`https://translate.google.com/?sl=en&tl=id&text=${encodeURIComponent(text)}&op=translate`, '_blank');
-        }
-        
-        if (e.target.classList.contains('suggest-search')) {
-            const title = e.target.getAttribute('data-title');
-            writeOutput(`<div class="output-line"><span class="prompt">$</span> <span style="color:#94e6b2;">search ${escapeHtml(title)}</span></div>`);
-            await searchWikipedia(title);
-        }
-    });
-    
+    // Copy to clipboard
     async function copyToClipboard(text) {
         try {
             await navigator.clipboard.writeText(text);
+            showToast('✓ Teks berhasil disalin!');
             return true;
         } catch(err) {
             const textarea = document.createElement('textarea');
@@ -312,134 +238,48 @@
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
+            showToast('✓ Teks berhasil disalin!');
             return true;
         }
     }
     
-    // Help & About
-    function showHelp() {
-        writeOutput(`
-            <div class="info-card">
-                <div style="font-weight:bold; margin-bottom:8px;">📋 Daftar Perintah</div>
-                <p><kbd>search [kata]</kbd> → Cari di Wikipedia (otomatis ID/EN)</p>
-                <p><kbd>clear</kbd> → Bersihkan layar</p>
-                <p><kbd>about</kbd> → Info terminal</p>
-                <hr style="border-color:#2a3448; margin:8px 0;">
-                <p><i class="fas fa-search-plus"></i> Pencarian fleksibel - tidak perlu huruf besar/kecil tepat</p>
-                <p><i class="fas fa-globe"></i> Mendukung 2 bahasa (Indonesia/Inggris)</p>
-                <p><i class="fas fa-shield-alt"></i> Mode privat - tanpa riwayat</p>
-            </div>
-        `);
-    }
-    
-    function showAbout() {
-        writeOutput(`
-            <div class="info-card">
-                <div style="font-weight:bold; margin-bottom:8px;">🛡️ SajaWarga Terminal v3.0</div>
-                <p>Mesin pencari Wikipedia bilingual dengan fuzzy search</p>
-                <p style="margin-top:8px;">✨ Fitur:</p>
-                <ul>
-                    <li>7.5M+ artikel Wikipedia</li>
-                    <li>Pencarian 2 bahasa (Indonesia/Inggris)</li>
-                    <li>Fuzzy search (ejaan mirip)</li>
-                    <li>100% privat & aman</li>
-                    <li>Salin teks & terjemahan Google Translate</li>
-                </ul>
-                <hr style="border-color:#2a3448; margin:8px 0;">
-                <p>Created with <i class="fas fa-heart" style="color:#e05a5a;"></i> by SajaWarga Team</p>
-                <p>Dengan bantuan dari berbagai sumber pengetahuan</p>
-            </div>
-        `);
-    }
-    
-    function clearScreen() {
-        dynamicOutput.innerHTML = '';
-        writeOutput('✓ Terminal bersih. Ketik help');
-    }
-    
-    async function processCommand(cmdRaw) {
-        const cmd = cmdRaw.trim().toLowerCase();
-        if (cmd === '') return;
-        
-        if (commandHistory[commandHistory.length - 1] !== cmdRaw.trim()) {
-            commandHistory.push(cmdRaw.trim());
-            if (commandHistory.length > 30) commandHistory.shift();
-        }
-        historyIndex = -1;
-        
-        const parts = cmd.split(' ');
-        const command = parts[0];
-        const args = parts.slice(1).join(' ');
-        
-        switch (command) {
-            case 'help': showHelp(); break;
-            case 'search': await searchWikipedia(args); break;
-            case 'clear': clearScreen(); break;
-            case 'about': showAbout(); break;
-            default: writeOutput(`⚠️ Perintah tidak dikenal: "${escapeHtml(cmdRaw)}". Ketik help`, true); break;
-        }
-        scrollToBottom();
-    }
-    
-    function setupInput() {
-        inputField.addEventListener('keydown', async (e) => {
-            if (e.key === 'Enter') {
-                const command = inputField.value;
-                if (command.trim() !== '') {
-                    writeOutput(`<div class="output-line"><span class="prompt">$</span> <span style="color:#94e6b2;">${escapeHtml(command.trim())}</span></div>`);
-                    inputField.value = '';
-                    await processCommand(command);
-                }
-                scrollToBottom();
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (commandHistory.length > 0) {
-                    if (historyIndex < 0) historyIndex = commandHistory.length;
-                    historyIndex--;
-                    if (historyIndex >= 0) inputField.value = commandHistory[historyIndex];
-                }
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (historyIndex < commandHistory.length - 1) {
-                    historyIndex++;
-                    inputField.value = commandHistory[historyIndex];
-                } else {
-                    historyIndex = -1;
-                    inputField.value = '';
-                }
-            }
-        });
-        
-        // Tombol Enter
-        const enterBtn = document.getElementById('enterBtn');
-        if (enterBtn) {
-            enterBtn.addEventListener('click', async () => {
-                const command = inputField.value;
-                if (command.trim() !== '') {
-                    writeOutput(`<div class="output-line"><span class="prompt">$</span> <span style="color:#94e6b2;">${escapeHtml(command.trim())}</span></div>`);
-                    inputField.value = '';
-                    await processCommand(command);
-                }
-                scrollToBottom();
-            });
-        }
-    }
-    
-    // Update Time di Status Bar
-    function updateTime() {
-        const timeEl = document.getElementById('liveTime');
-        if (timeEl) {
-            const now = new Date();
-            timeEl.innerHTML = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-        }
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
-    
-    // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
-        setupInput();
-        inputField.focus();
+    // Event Listeners
+    searchBtn.addEventListener('click', () => {
+        searchWikipedia(searchInput.value);
     });
+    
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchWikipedia(searchInput.value);
+        }
+    });
+    
+    document.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('copy-btn') || e.target.closest('.copy-btn')) {
+            const btn = e.target.classList.contains('copy-btn') ? e.target : e.target.closest('.copy-btn');
+            const text = btn.getAttribute('data-text');
+            if (text) await copyToClipboard(text);
+        }
+        
+        if (e.target.classList.contains('translate-btn') || e.target.closest('.translate-btn')) {
+            const btn = e.target.classList.contains('translate-btn') ? e.target : e.target.closest('.translate-btn');
+            const text = btn.getAttribute('data-text');
+            if (text) {
+                window.open(`https://translate.google.com/?sl=en&tl=id&text=${encodeURIComponent(text)}&op=translate`, '_blank');
+            }
+        }
+        
+        if (e.target.classList.contains('suggestion-btn') || e.target.closest('.suggestion-btn')) {
+            const btn = e.target.classList.contains('suggestion-btn') ? e.target : e.target.closest('.suggestion-btn');
+            const title = btn.getAttribute('data-title');
+            if (title) {
+                searchInput.value = title;
+                searchWikipedia(title);
+            }
+        }
+    });
+    
+    // Auto focus
+    searchInput.focus();
     
 })();
